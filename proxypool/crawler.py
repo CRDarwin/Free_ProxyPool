@@ -35,21 +35,7 @@ class Crawler(object, metaclass=ProxyMetaclass):
     #
     ##########################################################
 
-    # ip3366代理网站接口
-    def crawl_ip3366(self):
-        try:
-            ip_url = "http://ged.ip3366.net/api/?key=20180728102555601&getnum=3000&proxytype=01"
-            html = get_page(ip_url)
-            if html:
-                ip_list = html.rstrip("\r\n").split("\r\n")
-                for i in ip_list:
-                    yield i
-            else:
-                print("\033[1;31;40m IP3366网站  ---->  爬取网站为空已准备跳过！ \033[0m")
-                return 0
-        except:
-            print("\033[1;41;97m IP3366网站  ---->  爬虫网站规则更改，请修改！ \033[0m")
-            return 0
+
 
     # 快代理网站
     def crawl_kuaidaili(self):
