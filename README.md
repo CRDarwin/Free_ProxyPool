@@ -102,7 +102,7 @@ BATCH_TEST_SIZE = 150
 | /         | GET    | 代理池使用简介 | None                            |
 | /delete   | GET    | 删除无用的IP   | [proxies, type, detection, pid] |
 | /random   | GET    | 获取所需的代理 | [type, detection, limit]        |
-| /messages | GET    | None           |                                 |
+| /messages | GET    | 查看代理数量  | None                            |
 
 - 获取IP
 
@@ -216,4 +216,4 @@ def crawl_ip3366(self):
 ### Release Notes
 
    [release notes](#)
-   
+
