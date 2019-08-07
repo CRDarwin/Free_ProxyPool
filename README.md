@@ -11,21 +11,18 @@ ______                        ______             _
                       /___ /
 ```
 
-##### [介绍文档](
+##### [介绍文档](https://github.com/CRDarwin/Free_ProxyPool/blob/master/docx/introduce.md)
 
-##### [介绍文档](https://github.com/jhao104/proxy_pool/blob/master/doc/introduce.md)
-
-- 支持版本: ![](https://img.shields.io/badge/Python-2.x-green.svg) ![](https://img.shields.io/badge/Python-3.x-blue.svg)
-- 测试地址: http://118.24.52.95:5010 (单机勿压。感谢)
+- 支持版本: ![](https://img.shields.io/badge/Python-3.x-blue.svg)
 
 ### 下载安装
 
 - 下载源码:
 
 ```shell
-git clone git@github.com:jhao104/proxy_pool.git
+git clone https://github.com/CRDarwin/Free_ProxyPool.git
 
-或者直接到https://github.com/jhao104/proxy_pool 下载zip文件
+或者直接到 https://github.com/CRDarwin/Free_ProxyPool.git 下载zip文件
 ```
 
 - 安装依赖:
@@ -34,41 +31,51 @@ git clone git@github.com:jhao104/proxy_pool.git
 pip install -r requirements.txt
 ```
 
-- 配置Config/setting.py:
+- 配置proxypool/setting.py:
 
 ```shell
-# Config/setting.py 为项目配置文件
+# proxypool/setting.py 为项目配置文件
 
-# 配置DB     
-DATABASES = {
-    "default": {
-        "TYPE": "SSDB",        # 如果使用SSDB或redis数据库，均配置为SSDB
-        "HOST": "127.0.0.1",   # db host
-        "PORT": 8888,          # db port，例如SSDB通常使用8888，redis通常默认使用6379
-        "NAME": "proxy",       # 默认配置
-        "PASSWORD": ""         # db password
+# MongoDB数据库配置信息
+MONGO_HOST = 'localhost'            # MongoDB数据库地址
+MONGO_PORT = 27017                  # MongoDB端口
+MONGO_PASSWORD = None               # MongoDB密码，如无填None
+MONGO_DB = 'proxy'                  # MongoDB数据库名称
+MONGO_TABLE = 'proxies'            # MongoDB数据集合
 
-    }
-}
+# 代理中pid的类型
+DTC_PID = 1                         # 可用IP
+DOT_PID = 0                         # 未检测IP
+
+# 代理分数
+MAX_SCORE = 160                     # 可用代理分数
+MIN_SCORE = 60                      # 移除代理分数
+INITIAL_SCORE = 100                 # 进库代理分数
+
+VALID_STATUS_CODES = [200, 201]     # IP检测时返回码
+
+POOL_UPPER_THRESHOLD = 200000       # 代理池数量界限
 
 
-# 配置 ProxyGetter
-
-PROXY_GETTER = [
-    "freeProxyFirst",      # 这里是启用的代理抓取函数名，可在ProxyGetter/getFreeProxy.py 扩展
-    "freeProxySecond",
-    ....
-]
+TESTER_CYCLE = 10                   # 代理每次检查周期（秒）
+GETTER_CYCLE = 300                  # 代理每次获取周期（秒）
 
 
-# 配置 API服务
+# 测试代理使用的URL，需要检测的加入到列表中
+TEST_URL = [ "http://jzsc.mohurd.gov.cn/assets/core/img/common/shpj-close.png", "https://www.baidu.com/img/baidu_resultlogo@2.png" ]
 
-SERVER_API = {
-    "HOST": "0.0.0.0",  # 监听ip, 0.0.0.0 监听所有IP
-    "PORT": 5010        # 监听端口
-}
-       
-# 上面配置启动后，代理池访问地址为 http://127.0.0.1:5010
+# 配置API服务
+API_HOST = '127.0.0.1'              # 代理池API的IP
+API_PORT = 55555                    # 代理池API的端口
+# 上面配置启动后，代理池访问地址为 http://127.0.0.1:55555
+
+# 开关
+TESTER_ENABLED = True               # 测试器的开关
+GETTER_ENABLED = True               # 获取器开关
+API_ENABLED = True                  # API接口开关
+
+# 每次代理检测量
+BATCH_TEST_SIZE = 150
 
 ```
 
@@ -77,76 +84,71 @@ SERVER_API = {
 ```shell
 # 如果你的依赖已经安全完成并且具备运行条件,可以直接在Run下运行main.py
 # 到Run目录下:
->>>python main.py
-
-# 如果运行成功你应该看到有4个main.py进程
-
-# 你也可以分别运行他们,
-# 依次到Api下启动ProxyApi.py,Schedule下启动ProxyRefreshSchedule.py和ProxyValidSchedule.py即可.
+		python main.py
 ```
 
-- 生产环境 Docker/docker-compose
 
-```shell
-# Workdir proxy_pool
-docker build -t proxy_pool .
-pip install docker-compose
-docker-compose -f docker-compose.yml up -d
-```
 
-- 开发环境 Docker
+### 简单使用
 
-```shell
-# Workdir proxy_pool
-docker build -t proxy_pool .
-docker run -it --rm -v $(pwd):/usr/src/app -p 5010:5010 proxy_pool
-```
+　　启动过几分钟后就能看到抓取到的代理IP，你可以直接到数据库中查看；
 
-### 使用
+　　也可以通过API访问 http://127.0.0.1:55555 查看。
 
-　　启动过几分钟后就能看到抓取到的代理IP，你可以直接到数据库中查看，推荐一个[SSDB可视化工具](https://github.com/jhao104/SSDBAdmin)。
+- API
 
-　　也可以通过api访问http://127.0.0.1:5010 查看。
+| api       | method | Description    | arg                             |
+| --------- | ------ | -------------- | ------------------------------- |
+| /         | GET    | 代理池使用简介 | None                            |
+| /delete   | GET    | 删除无用的IP   | [proxies, type, detection, pid] |
+| /random   | GET    | 获取所需的代理 | [type, detection, limit]        |
+| /messages | GET    | None           |                                 |
 
-- Api
+- 获取IP
 
-| api         | method | Description      | arg           |
-| ----------- | ------ | ---------------- | ------------- |
-| /           | GET    | api介绍          | None          |
-| /get        | GET    | 随机获取一个代理 | None          |
-| /get_all    | GET    | 获取所有代理     | None          |
-| /get_status | GET    | 查看代理数量     | None          |
-| /delete     | GET    | 删除代理         | proxy=host:ip |
-
-- 爬虫使用
-
-　　如果要在爬虫代码中使用的话， 可以将此api封装成函数直接使用，例如：
+　　如果要在爬虫代码中使用的话， 可以将此API封装成类获取IP列表，例如：
 
 ```python
 import requests
 
-def get_proxy():
-    return requests.get("http://127.0.0.1:5010/get/").content
 
-def delete_proxy(proxy):
-    requests.get("http://127.0.0.1:5010/delete/?proxy={}".format(proxy))
+class ipproxy():
+    # 可在messages页面查看具体参数信息
+    def __init__(self, type= None, detection=None):
+        self.type = type
+        self.detection = detection
 
-# your spider code
+    def init_data(self, data):
+        for key in list(data.keys()):
+            if not data.get(key):
+                del data[key]
+        return data
 
-def getHtml():
-    # ....
-    retry_count = 5
-    proxy = get_proxy()
-    while retry_count > 0:
-        try:
-            html = requests.get('https://www.example.com', proxies={"http": "http://{}".format(proxy)})
-            # 使用代理访问
-            return html
-        except Exception:
-            retry_count -= 1
-    # 出错5次, 删除代理池中代理
-    delete_proxy(proxy)
-    return None
+    # 获取代理，返回list类型
+    def get_proxy(self, limit):
+        params = {
+            'type' : self.type,                # 请求的IP类型     （可选参数，默认为：""）
+            'detection' : self.detection,      # 请求的测试网站   （可选参数，默认为：""）
+            'limit' : limit                    # 每次获取的IP数   （可选参数，默认为：10）
+        }
+        response = requests.get('http://127.0.0.1:55555/random',params=self.init_data(params))
+        return response.text.split("\r\n")
+
+    # 删除代理
+    def delete_proxy(self, porxy):
+        params = {
+            'proxy': porxy,                    # 需要删除的IP     （必填参数）
+            'type': self.type,                 # 请求的IP类型     （可选参数，默认为：""）
+            'detection': self.detection,       # 请求的测试网站   （可选参数，默认为：""）
+            'pid' : 1
+        }
+        return requests.get('http://127.0.0.1:55555/delete', params=self.init_data(params))
+
+ip = ipproxy(type="https", detection="baidu")
+print(ip.get_proxy(3))
+"""	['120.79.147.254:9000', '183.146.213.157:80', '192.144.191.242:80'] """
+
+
 ```
 
 ### 扩展代理
@@ -155,39 +157,28 @@ def getHtml():
 
 　　添加一个新的代理获取方法如下:
 
-- 1、首先在[GetFreeProxy](https://github.com/jhao104/proxy_pool/blob/b9ccdfaada51b57cfb1bbd0c01d4258971bc8352/ProxyGetter/getFreeProxy.py#L32)类中添加你的获取代理的静态方法，
-  该方法需要以生成器(yield)形式返回`host:ip`格式的代理，例如:
+- 1、首先在[Crawler](https://github.com/CRDarwin/Free_ProxyPool/blob/master/proxypool/crawler.py#L23)类中添加你的获取代理的方法(已  `crawl_`  开头)，
+  该方法需要以生成器(yield)形式返回 `host:ip` 格式的代理，例如:
 
 ```python
-class GetFreeProxy(object):
-    # ....
-
-    # 你自己的方法
-    @staticmethod
-    def freeProxyCustom():  # 命名不和已有重复即可
-
-        # 通过某网站或者某接口或某数据库获取代理 任意你喜欢的姿势都行
-        # 假设你拿到了一个代理列表
-        proxies = ["139.129.166.68:3128", "139.129.166.61:3128", ...]
-        for proxy in proxies:
-            yield proxy
-        # 确保每个proxy都是 host:ip正确的格式就行
+def crawl_ip3366(self):
+    try:
+        ip_url = "http://ged.ip3366.net/api/?key=**&getnum=**&proxytype=**"
+        html = get_page(ip_url)
+        if html:
+            ip_list = html.rstrip("\r\n").split("\r\n")
+            for i in ip_list:
+                yield i	     # 确保每个proxy都是 host:ip正确的格式就行
+        else:
+            print("\033[1;31;40m IP3366网站  ---->  爬取网站为空已准备跳过！ \033[0m")
+            return 0
+    except:
+        print("\033[1;41;97m IP3366网站  ---->  爬虫网站规则更改，请修改！ \033[0m")
+        return 0
+)
 ```
 
-- 2、添加好方法后，修改Config/setting.py文件中的`PROXY_GETTER`项：
 
-　　在`PROXY_GETTER`下添加自定义的方法的名字:
-
-```shell
-PROXY_GETTER = [
-    "freeProxyFirst",    
-    "freeProxySecond",
-    ....
-    "freeProxyCustom"  #  # 确保名字和你添加方法名字一致
-]
-```
-
-　　`ProxyRefreshSchedule`会每隔一段时间抓取一次代理，下次抓取时会自动识别调用你定义的方法。
 
 ### 代理采集
 
@@ -208,11 +199,11 @@ PROXY_GETTER = [
 | Proxy List   | 可用           | 几分钟一次 | *      | 是       | [地址](https://proxy-list.org/chinese/index.php)             |
 | ProxyList+   | 可用           | 几分钟一次 | *      | 是       | [地址](https://list.proxylistplus.com/Fresh-HTTP-Proxy-List-1) |
 
-  如果还有其他好的免费代理网站, 可以在提交在[issues](https://github.com/jhao104/proxy_pool/issues/71), 下次更新时会考虑在项目中支持。
+  如果还有其他好的免费代理网站, 可以在提交在[issues](https://github.com/CRDarwin/Free_ProxyPool/issues), 下次更新时会考虑在项目中支持。
 
 ### 问题反馈
 
-　　任何问题欢迎在[Issues](https://github.com/jhao104/proxy_pool/issues) 中反馈，如果没有账号可以去 我的[博客](http://www.spiderpy.cn/blog/message)中留言。
+　　任何问题欢迎在[Issues](https://github.com/CRDarwin/Free_ProxyPool/issues) 中反馈，如果没有账号可以去 我的微信 (`JJ77128`) 中留言。
 
 　　你的反馈会让此项目变得更加完美。
 
@@ -220,9 +211,9 @@ PROXY_GETTER = [
 
 　　本项目仅作为基本的通用的代理池架构，不接收特有功能(当然,不限于特别好的idea)。
 
-　　本项目依然不够完善，如果发现bug或有新的功能添加，请在[Issues](https://github.com/jhao104/proxy_pool/issues)中提交bug(或新功能)描述，在确认后提交你的代码。
+　　本项目依然不够完善，如果发现bug或有新的功能添加，请在[Issues](https://github.com/CRDarwin/Free_ProxyPool/issues)中提交bug(或新功能)描述，在确认后提交你的代码。
 
 ### Release Notes
 
-   [release notes](https://github.com/jhao104/proxy_pool/blob/master/doc/release_notes.md)
-
+   [release notes](#)
+   
