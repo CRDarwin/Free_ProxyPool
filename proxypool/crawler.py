@@ -1,10 +1,16 @@
+# -*- coding: utf-8 -*-
+# @Author  : Darwin
+# @project : 代理池
+# @File    : main.py
+# @Time    : 2019/8/7 8:52
+# @Software: PyCharm
+# @Wechat Contact:  HTTP/HTTPS代理池的获取IP代理
+
 import datetime
 import re
 import time
-
 from lxml import etree
-
-from .utils import get_page
+from proxypool.utils import get_page
 from pyquery import PyQuery as pq
 
 
@@ -28,14 +34,27 @@ class Crawler(object, metaclass=ProxyMetaclass):
             proxies.append(proxy)
         return proxies
 
-
     ##########################################################
     #
     #               定义的代理网站规则
     #
     ##########################################################
 
-
+    # # ip3366代理网站接口
+    # def crawl_ip3366(self):
+    #     try:
+    #         ip_url = "http://ged.ip3366.net/api/?key=20180728102555601&getnum=3000&proxytype=01"
+    #         html = get_page(ip_url)
+    #         if html:
+    #             ip_list = html.rstrip("\r\n").split("\r\n")
+    #             for i in ip_list:
+    #                 yield i
+    #         else:
+    #             print("\033[1;31;40m IP3366网站  ---->  爬取网站为空已准备跳过！ \033[0m")
+    #             return 0
+    #     except:
+    #         print("\033[1;41;97m IP3366网站  ---->  爬虫网站规则更改，请修改！ \033[0m")
+    #         return 0
 
     # 快代理网站
     def crawl_kuaidaili(self):
@@ -101,7 +120,8 @@ class Crawler(object, metaclass=ProxyMetaclass):
                             start = result.start()
                             ips = i[start:]
                             yield ips.replace(' ', '')
-                        else:pass
+                        else:
+                            pass
                 else:
                     print("\033[1;31;40m 蚂蚁代理网站  ---->  爬取网站为空已准备跳过！ \033[0m")
                     return 0
@@ -122,9 +142,9 @@ class Crawler(object, metaclass=ProxyMetaclass):
                     re_ip_address = find_ip.findall(trs[s])
                     find_port = re.compile('<td>\s+(\d+)\s+</td>', re.S)
                     re_port = find_port.findall(trs[s])
-                    for address,port in zip(re_ip_address, re_port):
-                        address_port = address+':'+port
-                        yield address_port.replace(' ','')
+                    for address, port in zip(re_ip_address, re_port):
+                        address_port = address + ':' + port
+                        yield address_port.replace(' ', '')
             else:
                 print("\033[1;31;40m IP海代理网站  ---->  爬取网站为空已准备跳过！ \033[0m")
                 return 0
@@ -229,14 +249,14 @@ class Crawler(object, metaclass=ProxyMetaclass):
                         ip_addr = ''.join(each_proxy.xpath(xpath_str))
                         port = each_proxy.xpath(".//span[contains(@class, 'port')]/text()")[0]
                         yield '{}:{}'.format(ip_addr, port)
-                    except : pass
+                    except:
+                        pass
             else:
                 print("\033[1;31;40m 够搬家代理网站  ---->  爬取网站为空已准备跳过！ \033[0m")
                 return 0
         except:
             print("\033[1;41;97m 够搬家代理网站  ---->  爬虫网站规则更改，请修改！ \033[0m")
             return 0
-
 
     # IP代理库代理网站
     def crawl_jiangxianli(self):
@@ -255,7 +275,6 @@ class Crawler(object, metaclass=ProxyMetaclass):
         except:
             print("\033[1;41;97m IP代理库代理网站  ---->  爬虫网站规则更改，请修改！ \033[0m")
             return 0
-
 
     # 极速代理网站
     def crawl_superfastip(self, page_count=10):
@@ -278,7 +297,7 @@ class Crawler(object, metaclass=ProxyMetaclass):
             print("\033[1;41;97m 极速代理网站  ---->  爬虫网站规则更改，请修改！ \033[0m")
             return 0
 
-     # 小舒代理网站
+    # 小舒代理网站
     def crawl_xsdaili(self):
         try:
             html = get_page('http://www.xsdaili.com/')

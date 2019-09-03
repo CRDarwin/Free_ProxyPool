@@ -1,3 +1,11 @@
+# -*- coding: utf-8 -*-
+# @Author  : Darwin
+# @project : 代理池
+# @File    : main.py
+# @Time    : 2019/8/7 8:52
+# @Software: PyCharm
+# @Wechat Contact:  获取被爬取网站的页面信息
+
 import requests
 
 base_headers = {
@@ -11,24 +19,23 @@ base_headers = {
 }
 
 
-def get_page(url, options={}):
+def get_page(url, options=None):
     """
     抓取代理
-    :param url:
-    :param options:
+    :param url: 爬取IP的URL
+    :param options: 请求头参数
     :return:
     """
+    options = {} if options is None else options
     headers = dict(base_headers, **options)
     print('正在抓取', url)
     try:
         response = requests.get(url, headers=headers, timeout=5)
         print('抓取成功', url, response.status_code)
         if response.status_code == 200:
-            print("抓取到内容！")
+            print("\033[1;30;47m 抓取到内容！ \033[0m")
             return response.text
         else:
-            print("111111111111111111111111111")
             return 0
     except:
-        print("aaaaaaaaaaaaaaaaaaaaa")
         return 0

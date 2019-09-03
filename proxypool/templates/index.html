@@ -1,35 +1,244 @@
+﻿<!DOCTYPE html>
 <html>
 <head>
-    <title>代理池首页</title>
+    <meta charset="utf-8"/>
+    <title>蚪蝌代理(DOKE)</title>
+
+    <script src="../static/libs/jquery-1.12.4.min.js" type="text/javascript" charset="utf-8"></script>
+
+    <link rel="stylesheet" type="text/css" href="../static/css/index.css">
+     <link rel="shortcut icon" href="../static/img/favicon.ico">
+
 </head>
-
 <body>
-<h1 style="text-align:center">IP代理使用简介</h1>
-<h3 style="text-align:center"><a href="http://127.0.0.1:55555/messages", target="_blank">可在状态页面查看参数</a></h3>
+
+<header>
+    <a href="#" class="logo"></a>
+    <div class="desc">蚪蝌代理</div>
+</header>
+<div style="float:left;margin-left: 300px;line-height: 27px;margin-top: 63px; width: 590px">
+    <h3>代 理 池 参 数 简 介：</h3>
+    <ul style="padding-left: 40px;margin-top: 10px">
+        <li><h4>获 取 IP 代 理：(/random)</h4></li>
+        <ul style="padding-left: 30px;margin-top: 8px">
+            <li style="margin-top: 6px">type： <span style="margin-left:36px">( 选 填 ) 代 理 类 型</span></li>
+            <li style="margin-top: 6px">detection： <span style="margin-left:6px">( 选 填 ) 测 试 站 点</span></li>
+            <li style="margin-top: 6px">limsit： <span style="margin-left:31px">( 选 填 ) 获 取 数 量</span></li>
+            <li style="margin-top: 6px">formats： <span style="margin-left:16px">( 选 填 ) 输 出 格 式</span></li>
+            <li style="margin-top: 6px">order： <span style="margin-left:30px">( 选 填 ) 获 取 方 式</span></li>
+            <li style="margin-top: 6px">splits： <span style="margin-left:31px">( 选 填 ) 分 隔 符</span></li>
+        </ul>
+        <li><h4 style="margin-top: 10px">删 除 IP 代 理：(/delete)</h4></li>
+        <ul style="padding-left: 30px;margin-top: 8px">
+            <li style="margin-top: 6px">iport： <span style="margin-left:35px">( 必 填 ) 删 除 代 理</span></li>
+            <li style="margin-top: 6px">type： <span style="margin-left:36px">( 必 填 ) 删 除 类 型</span></li>
+            <li style="margin-top: 6px">detection： <span style="margin-left:6px">( 必 填 ) 检 测 类 型</span></li>
+            <!--<li style="margin-top: 6px">pid： <span style="margin-left:43px">( 选 填 ) IP的可用类型</span></li>-->
+        </ul>
+    </ul>
+</div>
+
+<div style=" clear:both;float:left;margin-left: 280px;=;line-height: 27px;margin-top: 160px; width: 200px">
+
+    <div class="submit_btn">
+        <button id="btn">使 用 简 介</button>
+    </div>
+</div>
 
 
-<h4 style="margin-left:320px">获取IP代理：(/random)</h4>
-<small style="margin-left:350px">例如：http://127.0.0.1:55555/random?type=https&detection=baidu&limit=100</small>
-<ul style="margin-left:320px">
-   <li style = "line-height:2">type：<span style="margin-left:60px">获取IP的类型</span></li>
-   <li style = "line-height:2">detection：<span style="margin-left:20px">获取IP的建筑网站</span></li>
-   <li style = "line-height:2">limsit：<span style="margin-left:50px">获取IP的数量</span></li>
-</ul>  
+<div style=" clear:both;float:left;margin-left: 640px;line-height:27px;margin-top: -54px;width: 200px">
 
-<h4 style="margin-left:320px">删除IP代理：(/delete)</h4>
-<small style="margin-left:350px">例如：http://127.0.0.1:55555/delete?proxy=112.85.130.209:9999&type=https&detection=baidu&pid=1</small>
-<ul style="margin-left:320px">
-   <li style = "line-height:2">iport：<span style="margin-left:57px">需要删除的IP</span></li>
-   <li style = "line-height:2">type：<span style="margin-left:60px">需要删除的IP类型</span></li>
-   <li style = "line-height:2">detection：<span style="margin-left:21px">需要删除的IP的检测类型</span></li>
-   <li style = "line-height:2">pid：<span style="margin-left:69px">IP的可用类型</span></li>
-</ul> 
-
-<h4 style="margin-left:320px">IP代理池状态：(/messages)<a href="http://127.0.0.1:55555/messages", style="margin-left:50px", target="_blank">点此跳转</a></h4>
-
-</ul> 
+    <div class="submit_btn">
+        <button id="btn2">代 理 池 状 态</button>
+    </div>
+</div>
 
 
+<div>
+    <form action="/api">
+        <h3 style="margin:0 0 15px 0">获取代理链接</h3>
+        <div class="register-box">
+            <label class="username_label">代 理 类 型
+                <select name="type">
+                    <option value="" selected="selected">默认NONE</option>
+                    {% for i in type %}
+                    <option value={{i}}>{{i}}</option>
+                    {% endfor %}
+                </select>
+            </label>
+            <div class="tips">
+            </div>
+        </div>
+
+
+        <div class="register-box">
+            <label class="username_label">测 试 站 点
+                <select name="detection">
+                    <option value="" selected="selected">默认NONE</option>
+                    {% for j in det %}
+                    <option value={{j}}>{{j}}</option>
+                    {% endfor %}
+
+                </select>
+            </label>
+            <div class="tips">
+            </div>
+        </div>
+
+        <div class="register-box">
+            <label class="username_label">获 取 数 量
+                <input type="number" name="limit" style="text-align:center; width:  260px;" value=20 min=1 max=500>
+            </label>
+            <div class="tips">
+            </div>
+        </div>
+        <div class="register-box">
+            <label class="username_label">输 出 格 式
+                <select name="formats">
+                    <option value="text" selected="selected">默认TEXT</option>
+                    <option value="json">JSON</option>
+                </select>
+            </label>
+            <div class="tips">
+            </div>
+        </div>
+        <div class="register-box">
+            <label class="username_label">获 取 方 式
+                <select name="order">
+                    <option value="-1">降序</option>
+                    <option value="0" selected="selected">随机</option>
+                    <option value="1">正序</option>
+                </select>
+            </label>
+            <div class="tips">
+            </div>
+        </div>
+
+        <div class="register-box">
+            <label class="username_label">IP 分 隔 符
+                <input name="splits" maxlength="4" type="text" style="text-align:center; width:260px;" value="\r\n">
+            </label>
+            <div class="tips">
+            </div>
+        </div>
+
+        <div class="submit_btn">
+            <button id="submit_btn">立 即 注 册</button>
+        </div>
+    </form>
+</div>
+
+
+<!--模态窗口中的内容-->
+<div id="sampledata1" class="bringins-content">
+    <h2 style="margin:20px 0 35px 0 color:white"><span>使 用 简 介</span></h2>
+    <p> 正在开发中.... </p>
+</div>
+
+<div id="sampledata2" class="bringins-content">
+    <h2 style="margin:30px 0 35px 30px; color:white">代 理 池 状 态</h2>
+    <table style="float:left;width: 660px;height:100px;text-align:center;color:white; border-color:white" border="1">
+        <thead>
+        <tr>
+            <th> 细 分</th>
+            <th> 类 型</th>
+            <th> 检 测 站</th>
+            <th> 数 量</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for i in subdivide %}
+        <tr>
+            <td></td>
+            {% for j in i %}
+            <td>{{ j }}</td>
+            {% endfor %}
+        </tr>
+        {% endfor %}
+        </tbody>
+
+        <thead>
+        <tr>
+            <th> 分 类</th>
+            <th></th>
+            <th> 类 型</th>
+            <th> 数 量</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for i in classify %}
+        <tr>
+            <td></td>
+            <td></td>
+            {% for j in i %}
+            <td>{{ j }}</td>
+            {% endfor %}
+        </tr>
+        {% endfor %}
+        </tbody>
+        <tr>
+            <td>可用IP量</td>
+            <td></td>
+            <td></td>
+            <td>{{ available_quantity }}</td>
+        </tr>
+        <tr>
+            <td>待测试IP量</td>
+            <td></td>
+            <td></td>
+            <td>{{ quantity_to_be_detected }}</td>
+        </tr>
+        <tr>
+            <td>IP总量</td>
+            <td></td>
+            <td></td>
+            <td>{{ total }}</td>
+        </tr>
+    </table>
+
+</div>
+
+<script type="text/javascript" src="../static/js/jquery-1.11.0.min.js"></script>
+<script type="text/javascript" src="../static/js/bringins.js"></script>
+<script>
+$(document).ready(function() {
+	$('#btn').click(function(){
+		$('#sampledata1').bringins({
+            <!--"color":"rgba(0,0,0,0.8)",-->
+            "closeButton":"white"
+		});
+	});
+	$('#btn2').click(function(){
+		$('#sampledata2').bringins({
+			"position":"left",
+			"color":"rgba(112,128,144,0.9)",
+			"width":"40%",
+			"closeButton":"white"
+		});
+	});
+	$('#btn3').click(function(){
+		$('#sampledata3').bringins({
+			"position":"center",
+			"color":"black",
+			"closeButton":"white",
+			"width":"100%"
+		});
+	});
+});
+
+
+
+
+
+</script>
+<br>
+
+<div style="text-align:center;margin:50px 0; font:normal 14px/24px 'MicroSoft YaHei';">
+    <p>来源： <a href="https://github.com/CRDarwin/Free_ProxyPool" target="_blank"><img border="0" src="https://github.githubassets.com/favicon.ico"
+                                                                                     width="15" height="15"></a></p>
+    <p> 蚪 蝌 代 理 （ DOKE )</p>
+
+</div>
 
 </body>
 </html>

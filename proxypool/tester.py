@@ -2,19 +2,19 @@ import asyncio
 import aiohttp
 import time
 import sys
+
 try:
     from aiohttp import ClientError
 except:
     from aiohttp import ClientProxyConnectionError as ProxyConnectionError
-from proxypool.db import RedisClient
+from proxypool.db import MonClient
 from proxypool.setting import *
-
 
 
 class Tester(object):
     def __init__(self):
-        self.redis = RedisClient()
-    
+        self.mongo = MonClient()
+
     async def test_single_proxy(self, proxy, test_url):
         """
         测试单个代理
@@ -38,19 +38,19 @@ class Tester(object):
                 real_proxy = 'http://' + proxy
                 print('正在测试', proxy)
                 start_time = time.time()
-                async with session.get(test_url, proxy=real_proxy, headers=headers, timeout=15,allow_redirects=False) as response:
+                async with session.get(test_url, proxy=real_proxy, headers=headers, timeout=15, allow_redirects=False) as response:
                     end_time = time.time()
                     if response.status in VALID_STATUS_CODES:
                         ping = end_time - start_time
-                        detection  = test_url.split(".")[1]
-                        self.redis.db.update({"iport" : proxy, "pid" : 0},{"$set":{'number':INITIAL_SCORE}})
-                        self.redis.add(proxy, score=MAX_SCORE, type=str(test_url).split(":")[0], detection=detection, ping=ping, pid=1)
-                        print("代理可用"+ proxy+str(str(test_url).split(":")[0]))
+                        detection = test_url.split(".")[1]
+                        self.mongo.db.update({"iport": proxy, "pid": DOT_PID}, {"$set": {'number': INITIAL_SCORE}})
+                        self.mongo.add(proxy, score=MAX_SCORE, type=str(test_url).split(":")[0], detection=detection, ping=ping, pid=DTC_PID)
+                        print("代理可用" + proxy + str(str(test_url).split(":")[0]))
                     else:
-                        self.redis.decrease(proxy)
+                        self.mongo.decrease(proxy)
                         print('请求响应码不合法 ', response.status, 'IP', proxy)
             except (ClientError, aiohttp.client_exceptions.ClientConnectorError, asyncio.TimeoutError, AttributeError):
-                self.redis.decrease(proxy)
+                self.mongo.decrease(proxy)
                 print('代理请求失败', proxy)
 
     def run(self):
@@ -58,20 +58,21 @@ class Tester(object):
         测试主函数
         :return:
         """
-        print('测试器开始运行')
+        print('\033[1;30;44m 测试器开始运行 \033[0m')
         try:
-            count = self.redis.db.count({"pid":0})
-            print('当前剩余', count, '个代理')
+            # count = self.mongo.db.count({"pid": DOT_PID})
+            count = list(self.mongo.db.aggregate([{"$match": {"pid": {"$eq": 0}}}, {"$group": {"_id": None, "count": {"$sum": 1}}}]))[0]["count"]
+            print('\033[1;44;31m 当前剩余 \033[0m', "\033[1;30;41m {} \033[0m".format(count), '\033[1;44;31m 个代理 \033[0m')
             for i in range(0, count, BATCH_TEST_SIZE):
                 start = i
                 stop = min(i + BATCH_TEST_SIZE, count)
                 print('正在测试第', start + 1, '-', stop, '个代理')
-                test_proxies = self.redis.batch(start, stop)
+                test_proxies = self.mongo.batch(start, stop)
                 for test_url in TEST_URL:
                     loop = asyncio.get_event_loop()
                     tasks = [self.test_single_proxy(proxy, test_url) for proxy in test_proxies]
                     loop.run_until_complete(asyncio.wait(tasks))
                     sys.stdout.flush()
-                    time.sleep(5)
+                time.sleep(5)
         except Exception as e:
             print('测试器发生错误', e.args)
