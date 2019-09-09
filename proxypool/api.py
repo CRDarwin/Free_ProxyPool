@@ -4,13 +4,13 @@
 # @File    : main.py
 # @Time    : 2019/8/7 8:52
 # @Software: PyCharm
-# @Wechat Contact:  HTTP/HTTPS代理池的API接口
+# @Wechat Contact:  HTTP/HTTPS代理池的API提取接口
 import json
 from urllib.parse import urlencode
 
 from flask import Flask, g, request, render_template
 
-from proxypool.db import MonClient, API_HOST, API_PORT
+from proxypool.db import MonClient
 
 __all__ = ['app']
 
@@ -32,7 +32,7 @@ def index():
                            quantity_to_be_detected=str(int(data[3]) - int(data[2])), total=data[3], type=data[4], det=data[5])
 
 
-# 获取链接API
+# 获取代理链接的API
 @app.route('/api')
 def api():
     data = dict(
@@ -67,12 +67,14 @@ def delete_proxy():
     return "删除时的参数键错误！", 401
 
 
+# 代理获取API
 @app.route('/ged', methods=['post', 'get'])
 def get_proxy():
     print(request.args.to_dict())
     return ged(request.args.to_dict())
 
 
+# 代理获取API解析函数
 def ged(dicts):
     conn = get_conn()
     if set(dicts.keys()).issubset(["number", "type", "detection", "limit", "formats", "splits", "order"]):
@@ -111,7 +113,7 @@ def ged(dicts):
             splits = "\r\n"
         get_ips = conn.get_proxy(querys=dicts, limit=limit, formats=formats, splits=splits, order=order)
         if formats == "json":
-            return json.dumps({"ip": list(get_ips)}, ensure_ascii=False)
+            return json.dumps({"ip": get_ips}, ensure_ascii=False)
         else:
             return get_ips
     else:

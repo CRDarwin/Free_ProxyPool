@@ -12,20 +12,22 @@ from proxypool.db import MonClient
 from proxypool.setting import *
 import sys
 
+
 class Getter():
     def __init__(self):
         self.mongo = MonClient()
         self.crawler = Crawler()
-    
+
     def is_over_threshold(self):
         """
         判断是否达到了代理池限制
         """
-        if self.mongo.db.count() >= POOL_UPPER_THRESHOLD:
+        data = list(self.mongo.db.aggregate([{"$match": {"pid": {"$eq": 0}}}, {"$group": {"_id": None, "count": {"$sum": 1}}}]))
+        if  len(data) == 1 and data[0]['count'] >= POOL_UPPER_THRESHOLD:
             return True
         else:
             return False
-    
+
     def run(self):
         print('\033[1;30;44m 获取器开始执行 \033[0m')
         if not self.is_over_threshold():
@@ -37,3 +39,4 @@ class Getter():
                 sys.stdout.flush()
                 for proxy in proxies:
                     self.mongo.add(proxy)
+

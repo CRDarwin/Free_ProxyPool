@@ -50,10 +50,8 @@ class MonClient(object):
         :param stop:        结束索引
         :return:    代理列表
         """
-        # return self.db.find({"pid": DOT_PID}, {"iport": 1, "number": 1, "_id": 0}).sort([("timestamp", 1)]).limit((int(stop) - int(start))).skip(
-        #     start)
-        ip_list = self.db.find({"pid": DOT_PID}, {"iport": 1, "_id": 0}).limit((int(stop) - int(start))).skip(start)
-        return list(map((lambda x: x["iport"]), ip_list))
+        return list(self.db.find({"pid": DOT_PID}, {"iport": 1, "number": 1, "_id": 0}).sort([("timestamp", 1)]).limit((int(stop) - int(start))).skip(
+            start))
 
     def decrease(self, proxy):
         """
@@ -121,25 +119,44 @@ class MonClient(object):
         :return:
         """
         if formats == "text" and order == 0:  # 返回格式为text， 排序方式为随机
-            return splits.join(list(map((lambda x: x["iport"]), self.db.aggregate(
-                [{"$match": querys}, {"$project": {"_id": 0, "iport": 1}}, {'$sample': {'size': limit}}]))))
+            data = list(map((lambda x: x["iport"]),
+                            self.db.aggregate([{"$match": querys}, {"$project": {"_id": 0, "iport": 1}}, {'$sample': {'size': limit}}])))
+            if len(data) > 0:
+                return splits.join(data)
+            return "代理池枯竭或者参数错误！", 405
         if formats == "text" and order == 1:  # 返回格式为text， 排序方式为升序
-            return splits.join(list(map((lambda x: x["iport"]), self.db.aggregate(
-                [{"$match": querys}, {"$sort": {"ping": 1}}, {"$project": {"_id": 0, "iport": 1}}, {"$limit": limit}]))))
+            data = list(map((lambda x: x["iport"]),
+                            self.db.aggregate([{"$match": querys}, {"$sort": {"ping": 1}}, {"$project": {"_id": 0, "iport": 1}}, {"$limit": limit}])))
+            if len(data) > 0:
+                return splits.join(data)
+            return "代理池枯竭或者参数错误！", 405
         if formats == "text" and order == -1:  # 返回格式为text， 排序方式为降序
-            return splits.join(list(map((lambda x: x["iport"]), self.db.aggregate(
-                [{"$match": querys}, {"$sort": {"ping": -1}}, {"$project": {"_id": 0, "iport": 1}}, {"$limit": limit}]))))
+            data = list(map((lambda x: x["iport"]), self.db.aggregate(
+                [{"$match": querys}, {"$sort": {"ping": -1}}, {"$project": {"_id": 0, "iport": 1}}, {"$limit": limit}])))
+            if len(data) > 0:
+                return splits.join(data)
+            return "代理池枯竭或者参数错误！", 405
         if formats == "json" and order == 0:  # 返回格式为json， 排序方式为随机
-            return self.db.aggregate(
+            data = list(self.db.aggregate(
                 [{'$match': querys}, {"$project": {"_id": 0, "iport": 1, "type": 1, "detection": 1, "ping": 1, "timestamp": 1}},
-                 {'$sample': {'size': limit}}])
+                 {'$sample': {'size': limit}}]))
+            if len(data) > 0:
+                return data
+            return "代理池枯竭或者参数错误！", 405
         if formats == "json" and order == 1:  # 返回格式为json， 排序方式为升序
-            return self.db.aggregate(
+            data = list(self.db.aggregate(
                 [{'$match': querys}, {"$project": {"_id": 0, "iport": 1, "type": 1, "detection": 1, "ping": 1, "timestamp": 1}},
                  {"$sort": {"ping": 1}},
-                 {"$limit": limit}])
+                 {"$limit": limit}]))
+            print(data)
+            if len(data) > 0:
+                return data
+            return "代理池枯竭或者参数错误！", 405
         if formats == "json" and order == -1:  # 返回格式为json， 排序方式为降序
-            return self.db.aggregate(
+            data = list(self.db.aggregate(
                 [{'$match': querys}, {"$project": {"_id": 0, "iport": 1, "type": 1, "detection": 1, "ping": 1, "timestamp": 1}},
                  {"$sort": {"ping": -1}},
-                 {"$limit": limit}])
+                 {"$limit": limit}]))
+            if len(data) > 0:
+                return data
+            return "代理池枯竭或者参数错误！", 405

@@ -40,44 +40,6 @@ class Crawler(object, metaclass=ProxyMetaclass):
     #
     ##########################################################
 
-    # # ip3366代理网站接口
-    # def crawl_ip3366(self):
-    #     try:
-    #         ip_url = "http://ged.ip3366.net/api/?key=20180728102555601&getnum=3000&proxytype=01"
-    #         html = get_page(ip_url)
-    #         if html:
-    #             ip_list = html.rstrip("\r\n").split("\r\n")
-    #             for i in ip_list:
-    #                 yield i
-    #         else:
-    #             print("\033[1;31;40m IP3366网站  ---->  爬取网站为空已准备跳过！ \033[0m")
-    #             return 0
-    #     except:
-    #         print("\033[1;41;97m IP3366网站  ---->  爬虫网站规则更改，请修改！ \033[0m")
-    #         return 0
-
-    # 快代理网站
-    def crawl_kuaidaili(self):
-        try:
-            for i in range(1, 21):
-                start_url = 'http://www.kuaidaili.com/free/inha/{}/'.format(i)
-                html = get_page(start_url)
-                if html:
-                    ip_address = re.compile('<td data-title="IP">(.*?)</td>')
-                    re_ip_address = ip_address.findall(html)
-                    port = re.compile('<td data-title="PORT">(.*?)</td>')
-                    re_port = port.findall(html)
-                    for address, port in zip(re_ip_address, re_port):
-                        address_port = address + ':' + port
-                        yield address_port.replace(' ', '')
-                else:
-                    print("\033[1;31;40m 快代理网站  ---->  爬取网站为空已准备跳过！ \033[0m")
-                    return 0
-                time.sleep(1)
-        except:
-            print("\033[1;41;97m 快代理网站  ---->  爬虫网站规则更改，请修改！ \033[0m")
-            return 0
-
     # 89IP网站
     def crawl_89ip(self, page_count=15):
         try:
@@ -201,33 +163,6 @@ class Crawler(object, metaclass=ProxyMetaclass):
             print("\033[1;41;97m crossincode代理网站  ---->  爬虫网站规则更改，请修改！ \033[0m")
             return 0
 
-    # 西刺代理网站
-    def crawl_xicidaili(self):
-        try:
-            url_list = [
-                'http://www.xicidaili.com/nn/',  # 高匿
-                'http://www.xicidaili.com/nt/',  # 透明
-            ]
-            for each_url in url_list:
-                for i in range(1, 21):
-                    page_url = each_url + str(i)
-                    html = get_page(page_url)
-                    if html:
-                        tree = etree.HTML(html)
-                        proxy_list = tree.xpath('.//table[@id="ip_list"]//tr[position()>1]')
-                        for proxy in proxy_list:
-                            try:
-                                yield ':'.join(proxy.xpath('./td/text()')[0:2])
-                            except Exception as e:
-                                pass
-                    else:
-                        print("\033[1;31;40m 西刺代理网站  ---->  爬取网站为空已准备跳过！ \033[0m")
-                        return 0
-                    time.sleep(5)
-        except:
-            print("\033[1;41;97m 西刺代理网站  ---->  爬虫网站规则更改，请修改！ \033[0m")
-            return 0
-
     # 够搬家代理网站
     def crawl_goubanjia(self):
         try:
@@ -322,38 +257,149 @@ class Crawler(object, metaclass=ProxyMetaclass):
             print("\033[1;41;97m 小舒代理网站  ---->  爬虫网站规则更改，请修改！ \033[0m")
             return 0
 
-    # # 站大爷代理网站
-    # def crawl_zdaye(self):
-    #     try:
-    #         start_url = 'http://ip.zdaye.com/dayProxy.html'
-    #         headers = {
-    #             'Connection': 'keep-alive',
-    #             'Upgrade-Insecure-Requests': '1',
-    #             'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/75.0.3770.100 Safari/537.36',
-    #             'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3',
-    #             'Referer': 'http://ip.zdaye.com/dayProxy/2019/7/1.html',
-    #             'Accept-Encoding': 'gzip, deflate',
-    #             'Accept-Language': 'zh-CN,zh;q=0.9,en;q=0.8',
-    #         }
-    #         response = get_page(start_url, options=headers)
-    #         if response:
-    #             html = etree.HTML(response)
-    #             url_lists = map((lambda x: "http://ip.zdaye.com" + x),
-    #                             html.xpath('//*[@id="J_posts_list"]/div/div/h3/a/@href'))
-    #             for url_list in url_lists:
-    #                 responses = get_page(url_list, options=headers)
-    #                 if responses:
-    #                     html = etree.HTML(responses)
-    #                     ip_lists = html.xpath('//*[@id="J_posts_list"]/div[3]/text()')
-    #                     for ip_list in ip_lists:
-    #                         ip = str(ip_list).split("@")
-    #                         yield ip[0]
-    #                     time.sleep(2)
-    #                 else:
-    #                     print("\033[1;31;40m 站大爷代理网站  ---->  爬取网站为空已准备跳过！ \033[0m")
-    #         else:
-    #             print("\033[1;31;40m 站大爷代理网站  ---->  爬取网站为空已准备跳过！ \033[0m")
-    #             return 0
-    #     except:
-    #         print("\033[1;41;97m 站大爷代理网站  ---->  爬虫网站规则更改，请修改！ \033[0m")
-    #         return 0
+    # 神鸡代理网站
+    def crawl_shenjidaili(self):
+        try:
+            html = get_page('http://www.shenjidaili.com/open/')
+            if html:
+                html_tree = etree.HTML(html)
+                url_lists = html_tree.xpath('//div[@class="tab-pane fade p-3"]/table/tr/td[1]/text()')[1:]
+                del url_lists[51]
+                del url_lists[50]
+                for url_list in url_lists:
+                    yield url_list
+            else:
+                print("\033[1;31;40m 神鸡代理网站  ---->  爬取网站为空已准备跳过！ \033[0m")
+                return 0
+        except:
+            print("\033[1;41;97m 神鸡代理网站  ---->  爬虫网站规则更改，请修改！ \033[0m")
+            return 0
+
+    # 泥马代理网站
+    def crawl_nimadaili(self):
+        urls = ["http://www.nimadaili.com/http/{}/", "http://www.nimadaili.com/gaoni/{}/", "http://www.nimadaili.com/https/{}/"]
+        try:
+            for url in urls:
+                for page in range(100):
+                    html = get_page(url.format(str(page)))
+                    if html:
+                        html_tree = etree.HTML(html)
+                        for ip in html_tree.xpath('/html/body/div/div[1]/div[2]/table/tbody/tr/td[1]/text()'):
+                            yield ip
+                    else:
+                        print("\033[1;31;40m 泥马代理网站  ---->  爬取网站为空已准备跳过！ \033[0m")
+                        return 0
+                    time.sleep(2)
+        except:
+            print("\033[1;41;97m 泥马代理网站  ---->  爬虫网站规则更改，请修改！ \033[0m")
+            return 0
+
+    ##########################################################
+    #
+    #    过期代理（请检测是否能进入网站，再提取出来使用）
+    #
+    ##########################################################
+    '''
+# ip3366代理网站接口
+    def crawl_ip3366(self):
+        try:
+            ip_url = "http://ged.ip3366.net/api/?key=20180728102555601&getnum=3000&proxytype=01"
+            html = get_page(ip_url)
+            if html:
+                ip_list = html.rstrip("\r\n").split("\r\n")
+                for i in ip_list:
+                    yield i
+            else:
+                print("\033[1;31;40m IP3366网站  ---->  爬取网站为空已准备跳过！ \033[0m")
+                return 0
+        except:
+            print("\033[1;41;97m IP3366网站  ---->  爬虫网站规则更改，请修改！ \033[0m")
+            return 0
+
+    # 快代理网站
+    def crawl_kuaidaili(self):
+        try:
+            for i in range(1, 21):
+                start_url = 'http://www.kuaidaili.com/free/inha/{}/'.format(i)
+                html = get_page(start_url)
+                if html:
+                    ip_address = re.compile('<td data-title="IP">(.*?)</td>')
+                    re_ip_address = ip_address.findall(html)
+                    port = re.compile('<td data-title="PORT">(.*?)</td>')
+                    re_port = port.findall(html)
+                    for address, port in zip(re_ip_address, re_port):
+                        address_port = address + ':' + port
+                        yield address_port.replace(' ', '')
+                else:
+                    print("\033[1;31;40m 快代理网站  ---->  爬取网站为空已准备跳过！ \033[0m")
+                    return 0
+                time.sleep(1)
+        except:
+            print("\033[1;41;97m 快代理网站  ---->  爬虫网站规则更改，请修改！ \033[0m")
+            return 0
+
+    # 站大爷代理网站
+    def crawl_zdaye(self):
+        try:
+            start_url = 'http://ip.zdaye.com/dayProxy.html'
+            headers = {
+                'Connection': 'keep-alive',
+                'Upgrade-Insecure-Requests': '1',
+                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/75.0.3770.100 Safari/537.36',
+                'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3',
+                'Referer': 'http://ip.zdaye.com/dayProxy/2019/7/1.html',
+                'Accept-Encoding': 'gzip, deflate',
+                'Accept-Language': 'zh-CN,zh;q=0.9,en;q=0.8',
+            }
+            response = get_page(start_url, options=headers)
+            if response:
+                html = etree.HTML(response)
+                url_lists = map((lambda x: "http://ip.zdaye.com" + x),
+                                html.xpath('//*[@id="J_posts_list"]/div/div/h3/a/@href'))
+                for url_list in url_lists:
+                    responses = get_page(url_list, options=headers)
+                    if responses:
+                        html = etree.HTML(responses)
+                        ip_lists = html.xpath('//*[@id="J_posts_list"]/div[3]/text()')
+                        for ip_list in ip_lists:
+                            ip = str(ip_list).split("@")
+                            yield ip[0]
+                        time.sleep(2)
+                    else:
+                        print("\033[1;31;40m 站大爷代理网站  ---->  爬取网站为空已准备跳过！ \033[0m")
+            else:
+                print("\033[1;31;40m 站大爷代理网站  ---->  爬取网站为空已准备跳过！ \033[0m")
+                return 0
+        except:
+            print("\033[1;41;97m 站大爷代理网站  ---->  爬虫网站规则更改，请修改！ \033[0m")
+            return 0
+
+ # 西刺代理网站
+    def crawl_xicidaili(self):
+        try:
+            url_list = [
+                'http://www.xicidaili.com/nn/',  # 高匿
+                'http://www.xicidaili.com/nt/',  # 透明
+            ]
+            for each_url in url_list:
+                for i in range(1, 21):
+                    page_url = each_url + str(i)
+                    html = get_page(page_url)
+                    if html:
+                        tree = etree.HTML(html)
+                        proxy_list = tree.xpath('.//table[@id="ip_list"]//tr[position()>1]')
+                        for proxy in proxy_list:
+                            try:
+                                yield ':'.join(proxy.xpath('./td/text()')[0:2])
+                            except Exception as e:
+                                pass
+                    else:
+                        print("\033[1;31;40m 西刺代理网站  ---->  爬取网站为空已准备跳过！ \033[0m")
+                        return 0
+                    time.sleep(5)
+        except:
+            print("\033[1;41;97m 西刺代理网站  ---->  爬虫网站规则更改，请修改！ \033[0m")
+            return 0
+
+
+'''

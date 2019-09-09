@@ -1,2 +1,0 @@
-2019-09-02 17:46:38+0800 [-] Log opened.
-2019-09-02 17:46:38+0800 [-] :0: builtins.UserWarning: You do not have a working installation of the service_identity module: 'cannot import name 'opentype''.  Please install it from <https://pypi.python.org/pypi/service_identity> and make sure all of its dependencies are satisfied.  Without the service_identity module, Twisted can perform only rudimentary TLS client hostname verification.  Many valid certificate/hostname mappings may be rejected.

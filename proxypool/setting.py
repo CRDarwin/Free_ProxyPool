@@ -26,7 +26,7 @@ GETTER_CYCLE = 30                   # 代理每次获取周期（秒）
 
 
 # 测试代理使用的URL，需要检测的加入到列表中
-TEST_URL = [ "http://guozhivip.com/rank/","https://www.baidu.com/"]
+TEST_URL = [ "https://www.baidu.com" ]
 
 # API配置
 API_HOST = '127.0.0.1'              # 代理池API的IP

@@ -44,14 +44,14 @@ class Scheduler():
 
     def run(self):
         print('\033[1;30;41m 代理池开始运行 \033[0m')
-        if API_ENABLED:         # 启动API
+        if API_ENABLED:  # 启动API
             api_process = Process(target=self.schedule_api)
             api_process.start()
 
-        if GETTER_ENABLED:      # 启动获取器
+        if GETTER_ENABLED:  # 启动获取器
             getter_process = Process(target=self.schedule_getter)
             getter_process.start()
 
-        if TESTER_ENABLED:      # 启动检测器
+        if TESTER_ENABLED:  # 启动检测器
             tester_process = Process(target=self.schedule_tester)
             tester_process.start()
