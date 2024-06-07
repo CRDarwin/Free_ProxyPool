@@ -203,7 +203,7 @@ def crawl_ip3366(self):
 
 ### 问题反馈
 
-　　任何问题欢迎在[Issues](https://github.com/CRDarwin/Free_ProxyPool/issues) 中反馈，如果没有账号可以去 我的微信 (`JJ77128`) 中留言。
+　　任何问题欢迎在[Issues](https://github.com/CRDarwin/Free_ProxyPool/issues) 中反馈。
 
 　　你的反馈会让此项目变得更加完美。
 
